@@ -11,8 +11,6 @@ THINGS_TO_LINK=.zshrc .dircolors
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
-
-
 link: ## Create links from config files to $HOME
 	@for filename in $(THINGS_TO_LINK) ; do \
 		if [ -e "$(HOMEDIR)/$$filename" ]; \
@@ -25,7 +23,7 @@ link: ## Create links from config files to $HOME
 	done
 
 # Safe for re-running 
-install: link install-packages scm-breeze ## Install all packages and link all files
+install: link install-packages scm-breeze powerlevel10k## Install all packages and link all files
 
 # Contains stuff that cannot be safely re-run as well, and for now should only be ran the first time we're installing
 fresh-install: $(HOMEDIR)/.config/dotfiles-installed ## Run all one time installs and safe to re-run installs.
@@ -52,11 +50,12 @@ else
 		nano
 endif
 
-powerlevel10k:
-	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ~/powerlevel10k
+powerlevel10k: $(HOMEDIR)/powerlevel10k
+$(HOMEDIR)/powerlevel10k:
+	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git $(HOMEDIR)/powerlevel10k
 	echo 'source ~/powerlevel10k/powerlevel10k.zsh-theme' >>! ~/.zshrc
 
-scm-breeze: ~/.scm_breeze
-~/.scm_breeze:
-	git clone git://github.com/scmbreeze/scm_breeze.git ~/.scm_breeze
+scm-breeze: $(HOMEDIR)/.scm_breeze
+$(HOMEDIR)/.scm_breeze:
+	git clone git://github.com/scmbreeze/scm_breeze.git $(HOMEDIR)/.scm_breeze
 	~/.scm_breeze/install.sh
