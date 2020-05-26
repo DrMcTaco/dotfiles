@@ -46,8 +46,17 @@ setopt share_history
 # zsh terminal completions
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
+# pyenv
+export PATH="/home/dmrubin/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+
+# poetry
+source $HOME/.poetry/env
+
 # QOL aliases
 alias ls="ls -lAGFh --color=always"
+
 # Cause I have fat fingers
 alias cd..='cd ..'
 alias pyhton='python'

@@ -8,6 +8,8 @@ MAKEFLAGS += --no-builtin-rules
 HOMEDIR=$(HOME)
 
 THINGS_TO_LINK=.zshrc .dircolors .p10k.zsh .fzf.zsh
+PYTHON_VERSIONS=3.8.3 3.7.7
+GLOBAL_PYTHON=3.7.7
 
 help:
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
@@ -23,8 +25,19 @@ link: ## Create links from config files to $HOME
 		fi; \
 	done
 
+install-pythons: pyenv
+	@for version in $(PYTHON_VERSIONS) ; do \
+		if [ ! -d "$(HOMEDIR)/.pyenv/versions/$$version" ]; \
+		then \
+			pyenv install $$version; \
+		fi; \
+	done
+
+global-pyhton: pyenv install-pythons
+	pyenv global $(GLOBAL_PYTHON)
+
 # Safe for re-running 
-install: link install-packages scm-breeze powerlevel10k fzf ls_colors zsh_completetions## Install all packages and link all files
+install: link install-packages scm-breeze powerlevel10k fzf ls_colors zsh_completetions global-pyhton poetry## Install all packages and link all files
 
 # Contains stuff that cannot be safely re-run as well, and for now should only be ran the first time we're installing
 fresh-install: $(HOMEDIR)/.config/dotfiles-installed ## Run all one time installs and safe to re-run installs.
@@ -39,16 +52,41 @@ ifeq ($(UNAME),Darwin)
 		curl \
 		wget \
 		htop \
-		nano
+		nano \
+		python3 \
+		openssl \
+		readline \
+		sqlite3 \
+		xz \
+		zlib
 else
 	@echo "Linux detected. Assuming there's an apt binary though."	
-	sudo apt install -y \
+	sudo apt-get update
+	sudo apt install -y --no-install-recommends \
 		git \
 		zsh \
 		curl \
 		wget \
 		htop \
-		nano
+		nano \
+		python3 \
+		make \
+		build-essential \
+		libssl-dev \
+		zlib1g-dev \
+		libbz2-dev \
+		libreadline-dev \
+		libsqlite3-dev \
+		wget \
+		curl \
+		llvm \
+		libncurses5-dev \
+		xz-utils \
+		tk-dev \
+		libxml2-dev \
+		libxmlsec1-dev \
+		libffi-dev \
+		liblzma-dev 
 endif
 
 powerlevel10k: $(HOMEDIR)/powerlevel10k
@@ -73,3 +111,11 @@ $(HOMEDIR)/.local/share/lscolors.sh:
 
 zsh_completetions: $(HOMEDIR)/.zsh/zsh-autosuggestions
 	git clone https://github.com/zsh-users/zsh-autosuggestions $(HOMEDIR)/.zsh/zsh-autosuggestions
+
+pyenv: $(HOMEDIR)/.pyenv
+$(HOMEDIR)/.pyenv: 
+	curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+
+poetry: $(HOMEDIR)/.poetry/bin
+$(HOMEDIR)/.poetry/bin:
+	curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
