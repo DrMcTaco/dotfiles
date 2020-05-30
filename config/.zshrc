@@ -13,7 +13,7 @@ unsetopt autocd
 bindkey -e
 # End of lines configured by zsh-newuser-install
 # The following lines were added by compinstall
-zstyle :compinstall filename '/home/dmrubin/.zshrc'
+zstyle :compinstall filename '~/.zshrc'
 
 autoload -Uz compinit
 compinit
@@ -30,7 +30,7 @@ if [ -z "$SSH_AUTH_SOCK" ] ; then
 fi
 
 # Init SCM Breeze
-[ -s "/home/dmrubin/.scm_breeze/scm_breeze.sh" ] && source "/home/dmrubin/.scm_breeze/scm_breeze.sh"
+[ -s "~/.scm_breeze/scm_breeze.sh" ] && source "~/.scm_breeze/scm_breeze.sh"
 
 # fzf fuzzy search
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -41,21 +41,22 @@ setopt inc_append_history
 setopt share_history
 
 # ls colors
-. "/home/dmrubin/.local/share/lscolors.sh"
+if [[ ! $(uname) == Darwin ]]; then 
+  . "~/.local/share/lscolors.sh"
+fi
 
 # zsh terminal completions
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # pyenv
-export PATH="/home/dmrubin/.pyenv/bin:$PATH"
+export PATH="~/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
 
 # poetry
 source $HOME/.poetry/env
 
 # QOL aliases
-alias ls="ls -lAGFh --color=always"
+alias ls="ls -lAGFh"
 
 # Cause I have fat fingers
 alias cd..='cd ..'

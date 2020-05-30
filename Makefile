@@ -6,9 +6,10 @@ MAKEFLAGS += --warn-undefined-variables
 MAKEFLAGS += --no-builtin-rules
 .DEFAULT_GOAL := help
 HOMEDIR=$(HOME)
+UNAME=$(shell uname)
 
 THINGS_TO_LINK=.zshrc .dircolors .p10k.zsh .fzf.zsh
-PYTHON_VERSIONS=3.8.3 3.7.7
+PYTHON_VERSIONS=3.7.7
 GLOBAL_PYTHON=3.7.7
 
 help:
@@ -26,14 +27,16 @@ link: ## Create links from config files to $HOME
 	done
 
 install-pythons: pyenv
-	@for version in $(PYTHON_VERSIONS) ; do \
+	@export PATH="~/.pyenv/bin:$(PATH)"; \
+	for version in $(PYTHON_VERSIONS) ; do \
 		if [ ! -d "$(HOMEDIR)/.pyenv/versions/$$version" ]; \
 		then \
 			pyenv install $$version; \
 		fi; \
 	done
 
-global-pyhton: pyenv install-pythons
+global-pyhton: $(HOMEDIR)/.pyenv/version pyenv install-pythons
+$(HOMEDIR)/.pyenv/version:
 	pyenv global $(GLOBAL_PYTHON)
 
 # Safe for re-running 
@@ -46,6 +49,11 @@ $(HOMEDIR)/.config/dotfiles-installed: install
 install-packages:
 ifeq ($(UNAME),Darwin)
 	@echo "Darwin detected"
+	if [[ $$(command -v brew) == "" ]]; then \
+		/usr/bin/ruby -e "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" \
+	else \
+	 	brew update; \
+	fi;
 	brew install \
 		git \
 		zsh \
@@ -58,7 +66,10 @@ ifeq ($(UNAME),Darwin)
 		readline \
 		sqlite3 \
 		xz \
-		zlib
+		zlib \
+		readline \
+		xz \
+		pyenv
 else
 	@echo "Linux detected. Assuming there's an apt binary though."	
 	sudo apt-get update
@@ -101,20 +112,27 @@ $(HOMEDIR)/.scm_breeze:
 fzf:  $(HOMEDIR)/.fzf
 $(HOMEDIR)/.fzf:
 	git clone --depth 1 https://github.com/junegunn/fzf.git $(HOMEDIR)/.fzf
-	$(HOMEDIR)/.fzf/install -bin
+	$(HOMEDIR)/.fzf/install
 
 ls_colors: $(HOMEDIR)/.local/share/lscolors.sh
 $(HOMEDIR)/.local/share/lscolors.sh:
+ifeq ($(UNAME),Darwin)
+else
 	mkdir -p $(HOMEDIR)/.local/share || true
 	mkdir /tmp/LS_COLORS && curl -L https://api.github.com/repos/trapd00r/LS_COLORS/tarball/master | tar xzf - --directory=/tmp/LS_COLORS --strip=1
 	cd /tmp/LS_COLORS && sh install.sh
+endif 
 
 zsh_completetions: $(HOMEDIR)/.zsh/zsh-autosuggestions
+$(HOMEDIR)/.zsh/zsh-autosuggestions:
 	git clone https://github.com/zsh-users/zsh-autosuggestions $(HOMEDIR)/.zsh/zsh-autosuggestions
 
 pyenv: $(HOMEDIR)/.pyenv
-$(HOMEDIR)/.pyenv: 
+$(HOMEDIR)/.pyenv:
+ifeq ($(UNAME),Darwin)
+else  
 	curl -L https://github.com/pyenv/pyenv-installer/raw/master/bin/pyenv-installer | bash
+endif
 
 poetry: $(HOMEDIR)/.poetry/bin
 $(HOMEDIR)/.poetry/bin:
