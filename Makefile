@@ -27,7 +27,7 @@ link: ## Create links from config files to $HOME
 	done
 
 install-pythons: pyenv
-	@export PATH="~/.pyenv/bin:$(PATH)"; \
+	@export PATH="$HOME/.pyenv/bin:$(PATH)"; \
 	for version in $(PYTHON_VERSIONS) ; do \
 		if [ ! -d "$(HOMEDIR)/.pyenv/versions/$$version" ]; \
 		then \
@@ -69,7 +69,8 @@ ifeq ($(UNAME),Darwin)
 		zlib \
 		readline \
 		xz \
-		pyenv
+		pyenv \
+		coreutils
 else
 	@echo "Linux detected. Assuming there's an apt binary though."	
 	sudo apt-get update
@@ -107,7 +108,7 @@ $(HOMEDIR)/powerlevel10k:
 scm-breeze: $(HOMEDIR)/.scm_breeze
 $(HOMEDIR)/.scm_breeze:
 	git clone git://github.com/scmbreeze/scm_breeze.git $(HOMEDIR)/.scm_breeze
-	~/.scm_breeze/install.sh
+	$HOME/.scm_breeze/install.sh
 
 fzf:  $(HOMEDIR)/.fzf
 $(HOMEDIR)/.fzf:
@@ -116,12 +117,12 @@ $(HOMEDIR)/.fzf:
 
 ls_colors: $(HOMEDIR)/.local/share/lscolors.sh
 $(HOMEDIR)/.local/share/lscolors.sh:
-ifeq ($(UNAME),Darwin)
-else
 	mkdir -p $(HOMEDIR)/.local/share || true
 	mkdir /tmp/LS_COLORS && curl -L https://api.github.com/repos/trapd00r/LS_COLORS/tarball/master | tar xzf - --directory=/tmp/LS_COLORS --strip=1
+	if [[ $(UNAME) == Darwin ]]; then \
+		export PATH="/usr/local/opt/coreutils/libexec/gnubin:$(PATH)"; \
+	fi; \
 	cd /tmp/LS_COLORS && sh install.sh
-endif 
 
 zsh_completetions: $(HOMEDIR)/.zsh/zsh-autosuggestions
 $(HOMEDIR)/.zsh/zsh-autosuggestions:
