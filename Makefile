@@ -52,7 +52,7 @@ ifeq ($(UNAME),Darwin)
 	if [[ $$(command -v brew) == "" ]]; then \
 		/usr/bin/ruby -e "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" \
 	else \
-	 		brew update; \
+	 	brew update; \
 	fi;
 	brew install \
 		git \
