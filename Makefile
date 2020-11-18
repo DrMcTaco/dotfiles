@@ -27,7 +27,7 @@ link: ## Create links from config files to $HOME
 	done
 
 install-pythons: pyenv
-	@export PATH="$HOME/.pyenv/bin:$(PATH)"; \
+	@export PATH="$(HOMEDIR)/.pyenv/bin:$(PATH)"; \
 	for version in $(PYTHON_VERSIONS) ; do \
 		if [ ! -d "$(HOMEDIR)/.pyenv/versions/$$version" ]; \
 		then \
@@ -108,7 +108,7 @@ $(HOMEDIR)/powerlevel10k:
 scm-breeze: $(HOMEDIR)/.scm_breeze
 $(HOMEDIR)/.scm_breeze:
 	git clone git://github.com/scmbreeze/scm_breeze.git $(HOMEDIR)/.scm_breeze
-	$HOME/.scm_breeze/install.sh
+	$(HOMEDIR)/.scm_breeze/install.sh
 
 fzf:  $(HOMEDIR)/.fzf
 $(HOMEDIR)/.fzf:
